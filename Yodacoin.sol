@@ -1,4 +1,5 @@
-pragma solidity ^0.4.0;
+
+        pragma solidity ^0.4.0;
 
 import "browser/ERC20.sol";
 
@@ -41,15 +42,29 @@ contract Yodacoin is ERC20{
         
         return false;
     }
-    function transferFrom(address from,address to,uint amount) returns(bool success){
+    function transferFrom(address from,address to,uint _amount) returns(bool success){
         
+        if( _amount>0 && __allowances[from][msg.sender]>0 
+            && __allowances[from][msg.sender]>= _amount 
+            && __balanceOf[from]>= _amount) 
+        {
+            __balanceOf[from] -= _amount;
+            __balanceOf[to] += _amount;
+            __allowances[from][msg.sender] -= _amount;
+            
+            return true;
+        }
         
+        return false;
     }
-    function approve(address _spender,uint value) returns(bool success){
+    function approve(address _spender,uint _value) returns(bool success){
+        
+        __allowances[msg.sender][_spender] = _value;
         
     }
     function allowance(address owner,address spender) returns(uint remaining){
         
+        return __allowances[owner][spender];
     }
     
     
