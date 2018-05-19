@@ -14,18 +14,32 @@
 <body>
     <div class="container">
 
-        <h1>Coursetro Instructor</h1>
+        <h1>Ether Time Release</h1>
 
-        <h2 id="instructor"></h2>
+       <!-- <h2 id="instructor"></h2> -->
         <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
-        <label for="name" class="col-lg-2 control-label">Instructor Name</label>
-        <input id="name" type="text">
+        <label for="name" class="col-lg-2 control-label">Address</label>
+        <input id="Address" type="text">
 
-        <label for="name" class="col-lg-2 control-label">Instructor Age</label>
-        <input id="age" type="text">
+        <label for="name" class="col-lg-2 control-label">Ether Amount</label>
+        <input id="Amount" type="text">
+        
+        <label for="name" class="col-lg-2 control-label">Lock in Period(in Seconds)</label>
+        <input id="Time" type="text">
 
-        <button id="button">Update Instructor</button>
+        <button id="button">Lock Ether</button>
+        
+        </br>
+        
+         <h1>Release my Ether</h1>
 
+       <!-- <h2 id="instructor"></h2> -->
+        
+        <button id="CheckBalance">Check My Balance</button>
+        <input id="Balance" type="text" value="0.0000 ETH">
+
+        <button id="ReleaseEther">Release My Ether</button>
+  
 
     </div>
 
@@ -41,7 +55,7 @@
     
     web3.eth.defaultAccount = web3.eth.accounts[0];
     
-    var CoursetroContract = web3.eth.contract([
+    var TimeReleaseContract = web3.eth.contract([
     	{
     		"anonymous": false,
     		"inputs": [
@@ -97,10 +111,10 @@
     	}
     ]);
     
-    	var Coursetro = CoursetroContract.at('0x5b754b3103ce82f62fc6774fa2d17a2ff867cb4a');
-        console.log(Coursetro);
+    	var TimeRel = TimeReleaseContract.at('0x5b754b3103ce82f62fc6774fa2d17a2ff867cb4a');
+        console.log(TimeRel);
     
-        var instructorEvent=Coursetro.Instructor();
+        var instructorEvent=TimeRel.Instructor();
         instructorEvent.watch(function(error, result){
             if (!error)
                 {
@@ -115,7 +129,7 @@
 
         $("#button").click(function() {
         	$("#loader").show();
-            Coursetro.setInstructor($("#name").val(), $("#age").val());
+            TimeRel.setInstructor($("#name").val(), $("#age").val());
         });
         
         
