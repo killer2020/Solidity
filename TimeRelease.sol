@@ -6,6 +6,9 @@ contract TimeRelease{
     mapping( address => uint) timer;
     mapping( address => uint) created;
 
+    event BalanceEvent(uint); 
+    event TransferEvent(uint);
+    event EtherLocked(address,uint);
     
     function addEtherToAddress(address _adr, uint _timer) public payable returns(bool)
     {
@@ -14,6 +17,8 @@ contract TimeRelease{
             balance[_adr] = msg.value;
             created[_adr] = now;
             timer[_adr] = _timer;
+            
+            EtherLocked(_adr,msg.value);
             return true;
         }
      
@@ -28,7 +33,8 @@ contract TimeRelease{
         {
             if((now - created[msg.sender]) > timer[msg.sender])
             {
-                (msg.sender).send(balance[msg.sender]);
+                TransferEvent(balance[msg.sender]);
+                (msg.sender).transfer(balance[msg.sender]);
                 delete balance[msg.sender];
                 delete timer[msg.sender];
                 delete created[msg.sender];
@@ -42,6 +48,7 @@ contract TimeRelease{
     
     function getBalance() public returns(uint)
     {
+        BalanceEvent(balance[msg.sender]);
         return balance[msg.sender];
     }
     
