@@ -1,66 +1,218 @@
-pragma solidity ^0.4.0;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
 
-contract TimeRelease{
-    
-    mapping( address => uint) balance;
-    mapping( address => uint) timer;
-    mapping( address => uint) created;
+    <link rel="stylesheet" type="text/css" href="main.css">
 
-    event BalanceEvent(uint); 
-    event TransferEvent(uint);
-    event EtherLocked(address,uint);
-    
-    function addEtherToAddress(address _adr, uint _timer) public payable returns(bool)
-    {
-        if(balance[_adr] == 0 && msg.value > 0 )
-        {
-            balance[_adr] = msg.value;
-            created[_adr] = now;
-            timer[_adr] = _timer;
-            
-            EtherLocked(_adr,msg.value);
-            return true;
-        }
-     
-        return false;           
-    }
-    
-    
-    function retrieveEther() public returns(bool)
-    {
-     
-       if(balance[msg.sender]>0)
-        {
-            if((now - created[msg.sender]) > timer[msg.sender])
-            {
-                TransferEvent(balance[msg.sender]);
-                (msg.sender).transfer(balance[msg.sender]);
-                delete balance[msg.sender];
-                delete timer[msg.sender];
-                delete created[msg.sender];
-                
-                return true;
-            }
-        }
+    <script src="./node_modules/web3/dist/web3.min.js"></script>
+
+</head>
+<body>
+    <div class="container">
+
+        <h1>Ether Time Release</h1>
+
+       <!-- <h2 id="instructor"></h2> -->
+        <img id="loader" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif">
+        <label for="name" class="col-lg-2 control-label">Address</label>
+        <input id="Address" type="text">
+
+        <label for="name" class="col-lg-2 control-label">Ether Amount</label>
+        <input id="Amount" type="text">
         
-        return false;
+        <label for="name" class="col-lg-2 control-label">Lock in Period(in Seconds)</label>
+        <input id="Time" type="text">
+
+        <button id="button">Lock Ether</button>
+        
+        </br>
+        
+         <h1>Release my Ether</h1>
+
+       <!-- <h2 id="instructor"></h2> -->
+        
+        <button id="CheckBalance">Check My Balance</button>
+        <input id="Balance" type="text" value="0.0000 ETH">
+
+        <button id="ReleaseEther">Release My Ether</button>
+  
+
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+
+    <script>
+    if (typeof web3 !== 'undefined') {
+        web3 = new Web3(web3.currentProvider);
+    } else {
+        // set the provider you want from Web3.providers
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
     
-    function getBalance() public returns(uint)
-    {
-        BalanceEvent(balance[msg.sender]);
-        return balance[msg.sender];
-    }
+    web3.eth.defaultAccount = web3.eth.accounts[0];
     
-    event LogTime (uint);
-    function getRemainingTime() public returns(uint)
-    {
-        LogTime(now);
-        if(balance[msg.sender]>0 && now - (created[msg.sender]+timer[msg.sender])>0)
-         {
-             return now - (created[msg.sender]+timer[msg.sender]);
-         }
-         
-         return 0;
-    }
-}
+    var TimeReleaseContract = web3.eth.contract([
+    	{
+    		"constant": false,
+    		"inputs": [
+    			{
+    				"name": "_adr",
+    				"type": "address"
+    			},
+    			{
+    				"name": "_timer",
+    				"type": "uint256"
+    			}
+    		],
+    		"name": "addEtherToAddress",
+    		"outputs": [
+    			{
+    				"name": "",
+    				"type": "bool"
+    			}
+    		],
+    		"payable": true,
+    		"stateMutability": "payable",
+    		"type": "function"
+    	},
+    	{
+    		"anonymous": false,
+    		"inputs": [
+    			{
+    				"indexed": false,
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"name": "BalanceEvent",
+    		"type": "event"
+    	},
+    	{
+    		"constant": false,
+    		"inputs": [],
+    		"name": "getBalance",
+    		"outputs": [
+    			{
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"payable": false,
+    		"stateMutability": "nonpayable",
+    		"type": "function"
+    	},
+    	{
+    		"constant": false,
+    		"inputs": [],
+    		"name": "getRemainingTime",
+    		"outputs": [
+    			{
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"payable": false,
+    		"stateMutability": "nonpayable",
+    		"type": "function"
+    	},
+    	{
+    		"constant": false,
+    		"inputs": [],
+    		"name": "retrieveEther",
+    		"outputs": [
+    			{
+    				"name": "",
+    				"type": "bool"
+    			}
+    		],
+    		"payable": false,
+    		"stateMutability": "nonpayable",
+    		"type": "function"
+    	},
+    	{
+    		"anonymous": false,
+    		"inputs": [
+    			{
+    				"indexed": false,
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"name": "TransferEvent",
+    		"type": "event"
+    	},
+    	{
+    		"anonymous": false,
+    		"inputs": [
+    			{
+    				"indexed": false,
+    				"name": "",
+    				"type": "address"
+    			},
+    			{
+    				"indexed": false,
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"name": "EtherLocked",
+    		"type": "event"
+    	},
+    	{
+    		"anonymous": false,
+    		"inputs": [
+    			{
+    				"indexed": false,
+    				"name": "",
+    				"type": "uint256"
+    			}
+    		],
+    		"name": "LogTime",
+    		"type": "event"
+    	}
+    ]);
+    
+    	var TimeRel = TimeReleaseContract.at('0x447adf77602b886134cf5389c3efd394403a4d59');
+        console.log(TimeRel);
+        console.log(web3.eth.defaultAccount);
+        
+        var etherLock=TimeRel.EtherLocked();
+        /* etherLock.watch(function(error, result){
+            if (!error)
+                {
+                    $("#loader").hide();
+                   // $("#instructor").html(result.args.name + ' (' + result.args.age + ' years old)');
+                } else {
+                    $("#loader").hide();
+                    console.log(error);
+                }
+        }); */
+
+        $("#button").click(function() {
+        	$("#loader").show();
+        	
+            
+            TimeRel.addEtherToAddress.sendTransaction($("#Address").val(), $("#Time").val()
+            ,{from: web3.eth.defaultAccount , value: $("#Amount").val()}, function(error, transactionHash){
+            	if (!error)
+                {
+                    $("#loader").hide();
+                    console.log(transactionHash);
+                   } else {
+                    $("#loader").hide();
+                    console.log(error);
+                }
+        	    
+        	});
+        });
+        
+        
+        
+    </script>
+
+</body>
+</html>
