@@ -37,7 +37,7 @@
         
         <button id="CheckBalance">Check My Balance</button>
         <input id="Balance" type="text" value="0.0000 ETH">
-
+        <img id="loader2" src="https://loading.io/spinners/double-ring/lg.double-ring-spinner.gif" style="display: none;">
         <button id="ReleaseEther">Release My Ether</button>
   
 
@@ -53,7 +53,7 @@
         web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
     }
     
-    web3.eth.defaultAccount = web3.eth.accounts[0];
+    web3.eth.defaultAccount = web3.eth.accounts[9];
     
     var TimeReleaseContract = web3.eth.contract([
     	{
@@ -84,7 +84,7 @@
     		"inputs": [
     			{
     				"indexed": false,
-    				"name": "",
+    				"name": "_balance",
     				"type": "uint256"
     			}
     		],
@@ -176,23 +176,14 @@
     	}
     ]);
     
-    	var TimeRel = TimeReleaseContract.at('0x447adf77602b886134cf5389c3efd394403a4d59');
+    	var TimeRel = TimeReleaseContract.at('0x70cb9481db94c691d2152a72a03efde3b6ff0b2d');
         console.log(TimeRel);
         console.log(web3.eth.defaultAccount);
         
-        var etherLock=TimeRel.EtherLocked();
-        /* etherLock.watch(function(error, result){
-            if (!error)
-                {
-                    $("#loader").hide();
-                   // $("#instructor").html(result.args.name + ' (' + result.args.age + ' years old)');
-                } else {
-                    $("#loader").hide();
-                    console.log(error);
-                }
-        }); */
+        
 
-        $("#button").click(function() {
+        $("#button").click(function() 
+        {
         	$("#loader").show();
         	
             
@@ -200,15 +191,81 @@
             ,{from: web3.eth.defaultAccount , value: $("#Amount").val()}, function(error, transactionHash){
             	if (!error)
                 {
-                    $("#loader").hide();
+                    
                     console.log(transactionHash);
+                    alert("Ether locked at "+$("#Address").val());
+                   
                    } else {
-                    $("#loader").hide();
                     console.log(error);
                 }
         	    
         	});
+            
+            
         });
+        
+        $("#ReleaseEther").click(function() 
+                {
+        	       $("#loader2").show();
+                    
+                    TimeRel.retrieveEther.sendTransaction({from: web3.eth.defaultAccount , value: 0}, function(error, transactionHash){
+                    	if (!error)
+                        {
+                    		$("#loader2").hide();
+                            console.log(transactionHash);
+                           
+                           } else {
+                        	 $("#loader2").hide();
+                            console.log(error);
+                        }
+                	    
+                	});
+                    
+                    
+                });
+        
+        
+        
+        $("#CheckBalance").click(function() 
+                {
+        	       $("#loader2").show();
+                    
+                    TimeRel.getBalance.sendTransaction({from: web3.eth.defaultAccount , value: 0}, function(error, transactionHash){
+                    	if (!error)
+                        {
+                    		$("#loader2").hide();
+                            console.log(transactionHash);
+                           
+                           } else {
+                        	 $("#loader2").hide();
+                            console.log(error);
+                        }
+                	    
+                	});
+                    
+                    
+                });
+        
+        
+        
+        
+        
+        var balanceEvent=TimeRel.BalanceEvent();
+         balanceEvent.watch(function(error, result){
+            if (!error)
+                {
+            	 
+            	 document.getElementById('Balance').value = result.args._balance+ " ETH";
+            	 
+            	 console.log(result.args._balance);
+            	 $("#loader").hide();
+                } else {
+                    console.log(error);
+                    $("#loader").hide();
+                }
+        });  
+        
+        
         
         
         
